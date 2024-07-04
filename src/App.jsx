@@ -1,34 +1,41 @@
 import { Square } from "./components/Square";
 import { useState } from "react";
 import confetti from "canvas-confetti";
-import { TURNS, WINNER_COMBOS } from "./constants";
+import { TURNS } from "./constants";
 import { checkEndGame, checkWinnerFrom } from "./logic/board";
 import { WinnerModal } from "./components/WinnerModal";
 import { Board } from "./components/Board";
+import { saveGameToStorage, resetGameToStorage } from "./logic/localStorage";
 
 function App() {
-  // Array(9).fill(null) -> Crear un ARRAY de 9 ELEMENTOS y cada ELEMENTO se RELLENA con "null"
-  // Este ESTADO es para los VALORES del TABLAERO (Array de Elementos)
-  const [board, setBoard] = useState(Array(9).fill(null));
+
+  // Este ESTADO es para los VALORES del TABLERO (Array de Elementos)
+  const [board, setBoard] = useState(() => {
+    // Leer del LOCAL STORAGE es SÚPER LENTO y es SÍNCRONO (Por lo que NO se puede continuar con lo demás hasta que termine)
+    // Esto uso del localStorage NO está afuera del useState porque sino se ejecutaría en cada renderizado
+    const boardFromStorage = window.localStorage.getItem("board"); 
+    return boardFromStorage ? JSON.parse(boardFromStorage): Array(9).fill(null);
+  });
 
   // Este ESTADO es para el TURNO del JUGADOR (X) o (O)
-  const [turn, setTurn] = useState(TURNS.X);
+  const [turn, setTurn] = useState(() => {
+    const turnFromStorage = window.localStorage.getItem("turn");
+    return turnFromStorage ?? TURNS.X;
+  });
 
   // Este ESTADO es para saber si ya hay un GANADOR -> null = NO hay ganador, false = Hay un EMPATE y true = SÍ hay un ganador
   const [winner, setWinner] = useState(null);
-  
-  
 
   // Esta función RESETEARÁ EL JUEGO -> Esta función es válida para cualquier CASO DE USO en donde querámos resetear un proceso, por ejemplo un Formulario -> Para esto debemos SETEAR todos lo ESTADOS a sus VALORES INICIALES
   const resetGame = () => {
     setBoard(Array(9).fill(null));
     setTurn(TURNS.X);
     setWinner(null);
+
+    // Cuando el usuario RESETEA el juego e inmediatamente realiza un F5, lo que pasará es que el localStorage hará que el TABLERO tenga lo que tenía ALMACENADO antes del RESETEO -> Para solucionar esto, haremos que cuando el usuario RESETEE el juego, también se RESETEE lo que almacenamos en el localStorage
+    resetGameToStorage();
   };
-
   
-
-
   const updateBoard = (index) => {
     /*
       Dato: Si se tiene un ESTADO que es un ARRAY y queremos modificar uno de sus Elementos -> Se debe CREAR una COPIA de ese ARRAY y a esa COPIA es a la que se le MODIFICARÁ el Elemento que queríamos MODIFICAR al ARRAY ORIGINAL.
@@ -45,6 +52,13 @@ function App() {
     const newTurn = turn === TURNS.X ? TURNS.O: TURNS.X;
     setTurn(newTurn);
 
+    // GUARDAREMOS LA PARTIDA acá, porque en este punto ya se lanzo el SET para actualizar el TURNO (y para este entonces el Usuario ya ha utilizado este TURNO)
+    // Convertimos el newBoard (que es un ARRAY) en un JSON, para que así este ARRAY sea un String con la forma de un ARRAY y así el localStorage convertirá el ARRAY newBoard en un String sin afectarlo en nada, ya que convertimos el newBoard en un JSON
+    saveGameToStorage({
+      board: newBoard,
+      turn: newTurn
+    });
+
     // Revisamos si hay un Ganador
     const newWinner = checkWinnerFrom(newBoard);
     if(newWinner) {
@@ -55,8 +69,6 @@ function App() {
       setWinner(false);
     }
   }
-
-  // Nos falta ver el tema de GUARDAR UNA PARTIDA
 
   return (
     <main className="board">
