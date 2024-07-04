@@ -1,11 +1,11 @@
 import { Square } from "./components/Square";
 import { useState } from "react";
-import confetti from "canvas-confetti";
 import { TURNS } from "./constants";
 import { checkEndGame, checkWinnerFrom } from "./logic/board";
 import { WinnerModal } from "./components/WinnerModal";
 import { Board } from "./components/Board";
 import { saveGameToStorage, resetGameToStorage } from "./logic/localStorage";
+import confetti from "canvas-confetti";
 
 function App() {
 
@@ -65,7 +65,7 @@ function App() {
       // LA ACTUALIZACIÓN DE LOS ESTADOS EN REACT SON ASÍNCRONOS -> Por eso es que si IMPRIMIMOS o UTILIZAMOS el VALOR DEL ESTADO inmediatamente después llamar a su Función SET, pero dentro del mismo BLOQUE DE CÓDIGO -> El ESTADO aún tendrá su MISMO VALOR, como si NO se hubiera hecho el SET -> Para solucionar esto es que se usa el useEffect, ya que el useEffect ejecutará el código que queramos CUANDO YA se haya logrado la ACTUALIZACIÓN DEL ESTADO
       confetti();
       setWinner(newWinner);
-    } else if(checkEndGame(newBoard)) {
+    } else if(checkEndGame(newBoard)) { // Evalúa el empate
       setWinner(false);
     }
   }
