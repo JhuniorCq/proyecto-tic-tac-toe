@@ -1,4 +1,3 @@
-// Dato: Al utilizar un Componente -> NO es OBLIGATORIO que ese Componente USE a TODAS las props
 export const Square = ({ children, isSelected, updateBoard, index }) => {
 
     const handleClick = () => {

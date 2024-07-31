@@ -5,7 +5,6 @@ export const WinnerModal = ({ winner, resetGame }) => {
 
   const winnerText = winner === false ? "Empate" : `Ganó ${winner}`;
 
-  // Recomendación: Dejar la parte del RENDERIZADo lo más LIMPIA posible, por eso sacamos el Operador Ternario fuera del return
   return (
     <>
       <section className="winner">
